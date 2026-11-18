@@ -1,4 +1,4 @@
-**简体中文** | [English](README.en.md)
+**简体中文** | [English](README_EN.md)
 
 # Desop
 
@@ -19,6 +19,11 @@
 ---
 
 ## 一、项目名称与定位
+
+> **仓库描述 / Description**：`Desop —— Windows 端桌面美化套装：把 macOS 桌面观感复刻到 Windows，提供 dock 栏、顶部栏、桌面小组件与灵动岛（规划中） | A Windows desktop beautification suite: macOS-style dock, menu bar, widgets and dynamic island. Planned, no code yet.`
+>
+> **话题标签 / Topics**（20 个，仅英文）：`beautification`, `desktop-customization`, `desktop-widgets`, `dock`, `dynamic-island`, `macos-style`, `menubar`, `planned`, `theme`, `ui`, `user-mode`, `windows`, `windows-10`, `windows-11`, `desktop-environment`, `taskbar`, `wallpaper`, `theming`, `windows-desktop`, `concept`
+
 
 **名称**：Desop。取 Desktop 的 Des 与 op（operation / 操作层）——桌面操作层。
 
@@ -132,7 +137,7 @@
 
 ---
 
-## 四、核心亮点
+## 四、核心特性
 
 **本章为设计意图，尚未实现，故不提供可复现证据。** 待首个可运行版本发布后，此处将逐条补齐「实现方式」与「证据」。
 
@@ -178,7 +183,7 @@
 
 ---
 
-## 五、设计细节与小巧思
+## 五、设计细节与工程取舍
 
 **本章为设计约定，实现时须遵守。**
 
@@ -306,7 +311,7 @@
 
 ## 十、API 与模块说明
 
-**当前无 API、无模块。** 仓库内只有 `README.md`、`README.en.md` 与 `LICENSE` 三个文件。
+**当前无 API、无模块。** 仓库内只有 `README.md`、`README_EN.md` 与 `LICENSE` 三个文件。
 
 规划中的模块划分（未实现）：
 
@@ -328,7 +333,7 @@
 ```
 Desop/
 ├── README.md          # 中文说明（本文件）
-├── README.en.md       # 英文说明
+├── README_EN.md       # 英文说明
 ├── LICENSE            # Apache-2.0 全文（GitHub 据此识别仓库许可）
 ├── LICENSE-MIT        # MIT 全文
 └── LICENSING.md       # 分层路由表（人类可读）
@@ -456,7 +461,7 @@ README 描述项目当前状态，发行版记录每次改了什么，两者不�
 
 ---
 
-## 十八、参与贡献方式
+## 十八、参与贡献
 
 **当前阶段暂不接受代码贡献**——没有代码可改，提 PR 无处落地。
 

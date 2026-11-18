@@ -20,6 +20,11 @@
 
 ## 1. Name and Positioning
 
+> **仓库描述 / Description**：`Desop —— Windows 端桌面美化套装：把 macOS 桌面观感复刻到 Windows，提供 dock 栏、顶部栏、桌面小组件与灵动岛（规划中） | A Windows desktop beautification suite: macOS-style dock, menu bar, widgets and dynamic island. Planned, no code yet.`
+>
+> **话题标签 / Topics**（20 个，仅英文）：`beautification`, `desktop-customization`, `desktop-widgets`, `dock`, `dynamic-island`, `macos-style`, `menubar`, `planned`, `theme`, `ui`, `user-mode`, `windows`, `windows-10`, `windows-11`, `desktop-environment`, `taskbar`, `wallpaper`, `theming`, `windows-desktop`, `concept`
+
+
 **Name**: Desop. "Des" from Desktop, "op" for operation layer — the desktop operation layer.
 
 **One-line positioning**: rebuild a macOS-style desktop interaction layer on Windows, so that switching systems no longer means switching habits.
@@ -132,7 +137,7 @@ The four components run as independent processes or modules, share the tokens, a
 
 ---
 
-## 4. Highlights
+## 4. Core Characteristics
 
 **This chapter describes design intent. Nothing is implemented, so no reproducible evidence is offered.** Each item will gain its "implementation" and "evidence" once a first runnable build exists.
 
@@ -178,7 +183,7 @@ The four components run as independent processes or modules, share the tokens, a
 
 ---
 
-## 5. Design Details and Small Decisions
+## 5. Design Details and Engineering Trade-offs
 
 **This chapter records design commitments to be honoured during implementation.**
 
@@ -306,7 +311,7 @@ Planned configuration (unimplemented):
 
 ## 10. API and Module Reference
 
-**No API, no modules.** The repository contains only `README.md`, `README.en.md` and `LICENSE`.
+**No API, no modules.** The repository contains only `README.md`, `README_EN.md` and `LICENSE`.
 
 Planned module split (unimplemented):
 
@@ -328,7 +333,7 @@ Planned module split (unimplemented):
 ```
 Desop/
 ├── README.md          # Chinese documentation
-├── README.en.md       # English documentation (this file)
+├── README_EN.md       # English documentation (this file)
 ├── LICENSE            # Apache-2.0 full text (GitHub detects the license from this)
 ├── LICENSE-MIT        # MIT full text
 └── LICENSING.md       # Layer routing table (human-readable)
@@ -402,7 +407,7 @@ Planned range (unverified):
 
 ---
 
-## 15. Known Limitations
+## 15. Known Issues and Limitations
 
 ### 15.1 Facts about the current stage
 
@@ -500,7 +505,7 @@ Both licenses allow commercial use, modification, closed-source distribution and
 
 ---
 
-## 20. NOTICE Open-source Compliance
+## 20. NOTICE and Open-Source Compliance
 
 **There are no third-party dependencies at present; NOTICE exists as a placeholder.** The full statement is in [NOTICE](./NOTICE), covering: the current zero-dependency fact, reference declarations, registration requirements for third-party components (seven fields), four rules, **extra requirements for icons and fonts** (beautification projects most often fail on assets), and a licence compatibility table.
 
