@@ -1,0 +1,45 @@
+# —— macOS 垃圾 ——
+.DS_Store
+._*
+__MACOSX/
+
+# —— 构建产物 ——
+# 本项目当前无代码（排期开发），以下为落地时的预设
+build/
+dist/
+out/
+release/
+*.exe
+*.msi
+*.dmg
+
+# —— 依赖目录 ——
+node_modules/
+vendor/
+.pnpm-store/
+
+# —— 本地配置与密钥 ——
+.env
+.env.local
+.env.*.local
+*.local
+*.pem
+*.key
+secrets/
+config.local.*
+
+# —— 编辑器与 IDE ——
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# —— 日志与临时文件 ——
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+.workbuddy/
