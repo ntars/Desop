@@ -4,9 +4,9 @@
 
 **A desktop beautification suite for Windows: recreate the macOS desktop feel on Windows with a dock, a menu bar, desktop widgets, a dynamic island and more.**
 
-> **Status: Planned.** This repository currently holds project material only — no runnable code, no build output, no releases. Everything below describes **positioning and intent**, not implemented features. Chapters that are still planned are explicitly marked "Planned".
+> **Status: Buildable MVP.** A Windows 10/11 user-mode implementation is available (pure Go standard library, zero third-party runtime dependencies). See [`docs/BUILD.md`](docs/BUILD.md), [`docs/INSTALL.md`](docs/INSTALL.md), and the [Windows acceptance checklist](docs/ACCEPTANCE.md).
 
-![Status](https://img.shields.io/badge/status-planned-fb8500?style=flat-square)
+![Status](https://img.shields.io/badge/status-buildable%20MVP-2ea44f?style=flat-square)
 [![GitHub license](https://img.shields.io/github/license/ntars/Desop?style=flat-square)](./LICENSE)
 [![GitHub Star](https://img.shields.io/github/stars/ntars/Desop?style=flat-square)](https://github.com/ntars/Desop/stargazers)
 [![GitHub Fork](https://img.shields.io/github/forks/ntars/Desop?style=flat-square)](https://github.com/ntars/Desop/network/members)
@@ -20,9 +20,9 @@
 
 ## 1. Name and Positioning
 
-> **仓库描述 / Description**：`Desop —— Windows 端桌面美化套装：把 macOS 桌面观感复刻到 Windows，提供 dock 栏、顶部栏、桌面小组件与灵动岛（规划中） | A Windows desktop beautification suite: macOS-style dock, menu bar, widgets and dynamic island. Planned, no code yet.`
+> **仓库描述 / Description**：`Desop —— Windows 端桌面美化套装：把 macOS 桌面观感复刻到 Windows，提供 dock 栏、顶部栏、桌面小组件与灵动岛 | A Windows desktop beautification suite: macOS-style dock, menu bar, widgets and dynamic island. Buildable MVP.`
 >
-> **话题标签 / Topics**（20 个，仅英文）：`beautification`, `desktop-customization`, `desktop-widgets`, `dock`, `dynamic-island`, `macos-style`, `menubar`, `planned`, `theme`, `ui`, `user-mode`, `windows`, `windows-10`, `windows-11`, `desktop-environment`, `taskbar`, `wallpaper`, `theming`, `windows-desktop`, `concept`
+> **话题标签 / Topics**（20 个，仅英文）：`beautification`, `desktop-customization`, `desktop-widgets`, `dock`, `dynamic-island`, `macos-style`, `menubar`, `mvp`, `theme`, `ui`, `user-mode`, `windows`, `windows-10`, `windows-11`, `desktop-environment`, `taskbar`, `wallpaper`, `theming`, `windows-desktop`, `concept`
 
 
 **Name**: Desop. "Des" from Desktop, "op" for operation layer — the desktop operation layer.
@@ -83,103 +83,84 @@ The four components run as independent processes or modules, share the tokens, a
 
 ## 3. Core Features
 
-**Everything in this chapter is planned; none of the four components is implemented.**
+**Status: implemented MVP features are marked ✅; items pending Windows acceptance or limited by Windows APIs are marked ⚠.**
 
 ### 3.1 Dock
 
 | Capability | Description | Status |
 |---|---|---|
-| Icon magnification | Neighbouring icons scale by distance as the pointer approaches, imitating macOS's magnetic effect | Planned |
-| Running indicator | A dot under running applications | Planned |
-| Bounce feedback | Bounce while launching, switchable off | Planned |
-| Auto-hide | Hide at the edge, trigger-zone width adjustable | Planned |
-| Position | Bottom / left / right | Planned |
-| Multiple monitors | Independent dock per monitor or main screen only | Planned |
+| Icon magnification | Neighbouring icons scale by distance as the pointer approaches | ✅ Implemented with bounded smoothstep |
+| Running indicator | A dot under running applications | ✅ Implemented via read-only process snapshot |
+| Bounce feedback | Bounce while launching, switchable off | ✅ Damped launch animation implemented |
+| Auto-hide | Hide at the edge with an adjustable trigger zone | ✅ Basic logic wired; Windows acceptance pending |
+| Position | Bottom / left / right | ✅ Implemented |
+| Multiple monitors | Independent dock per monitor or main screen only | ⚠ Currently primary screen only |
 
 ### 3.2 Menu bar
 
 | Capability | Description | Status |
 |---|---|---|
-| Global menu | Show the menu items of the foreground window (limited by how far Windows applications cooperate) | Planned |
-| Status area | Time, date, battery, network, volume | Planned |
-| Tray consolidation | Collect system tray icons into the bar, reducing clutter in the bottom-right corner | Planned |
-| Auto-hide | Hide during fullscreen applications | Planned |
-
-**Known limitation**: Windows applications are not obliged to expose their menu structure, so the global menu only works for applications supporting the standard menu API; others show empty. This is stated at the planning stage — no promise that "it works for every app".
+| Global menu | Show the foreground window title as a menu entry | ✅ Implemented; limited by exposed window titles, disabled by default |
+| Status area | Time, date, battery, network, volume | ✅ Time/date/network implemented; battery/volume degrade honestly |
+| Tray consolidation | Collect system tray icons into the bar | ⚠ Disabled by default, not implemented |
+| Auto-hide | Hide during fullscreen applications | ✅ Conservative detection wired; acceptance pending |
 
 ### 3.3 Desktop widgets
 
 | Capability | Description | Status |
 |---|---|---|
-| Clock and calendar | Large clock, month view, schedule summary | Planned |
-| System status | CPU / memory / disk / network throughput (read-only public interfaces) | Planned |
-| Notes | Local plain-text notes, no network | Planned |
-| Weather | The user supplies a data source; offline by default | Planned |
-| Layout | Free dragging, snap alignment, toggleable grid snapping | Planned |
+| Clock and calendar | Large clock, month view, schedule summary | ✅ Clock and month view implemented; schedule not implemented |
+| System status | CPU / memory / disk / network throughput | ✅ Implemented via read-only public Win32 APIs |
+| Notes | Local plain-text notes, no network | ✅ Implemented and persisted |
+| Weather | User-supplied data source only; offline by default | ✅ Offline fallback; no network calls |
+| Layout | Free dragging, snap alignment, toggleable grid snapping | ✅ Drag and grid snap implemented; acceptance pending |
 
 ### 3.4 Dynamic island
 
 | Capability | Description | Status |
 |---|---|---|
-| Resting form | A capsule centred at the top of the screen, tiny when collapsed | Planned |
-| Expand animation | Expands on click or event, with a spring curve | Planned |
-| Event sources | Music playback, download progress, notification summaries, timers | Planned |
-| Third-party access | A local interface allowing other programs to push status | Planned |
-
-**Note**: on macOS the dynamic island is a product of hardware and system together; Windows has no equivalent mechanism, so this project's implementation is **pure software simulation** — driven by reading public information such as system media sessions and download progress. This must be stated plainly rather than letting anyone assume a system-level capability.
+| Resting form | A capsule centred at the top of the screen, tiny when collapsed | ✅ Implemented |
+| Expand animation | Expands on click or event | ✅ Instant expansion implemented; spring curve pending |
+| Event sources | Music, download progress, timers, notification summaries | ✅ Local API supports media/download/timer/custom; system media session pending |
+| Third-party access | Local interface allowing other programs to push status | ✅ Loopback only (127.0.0.1) |
 
 ### 3.5 Explicitly out of scope
 
 - No wallpaper engine or animated wallpapers;
-- No forced injection of window effects (rounded corners, transparency);
-- No replacement of system accent colours;
-- No modification of boot animations.
+- No forced window-effect injection;
+- No system accent-colour replacement;
+- No boot animation changes.
 
 ---
 
 ## 4. Core Characteristics
 
-**This chapter describes design intent. Nothing is implemented, so no reproducible evidence is offered.** Each item will gain its "implementation" and "evidence" once a first runnable build exists.
+**Status: implementation is in place; evidence is source code and automated tests. Performance and GUI evidence still require Windows acceptance.**
 
 ### Highlight 1: Zero system changes, uninstall restores everything
 
-- **Name**: Pure user-mode implementation.
-- **Value**: Solves the fear that "a beautification pack breaks the system and it will not boot" — the primary reason ordinary users avoid such tools.
-- **Implementation (planned)**: No writes to system directories, no shell replacement, no injection into explorer. All elements are windows of independent processes interacting with the system through public APIs.
-- **Differentiation**: Most heavyweight packs demand disabling system updates and replacing system files, with extremely high recovery costs on failure.
-- **Evidence**: To be provided after implementation. What can be checked today is that "zero system changes" is already written into the security principles in Chapter 13 and the compatibility boundaries in Chapter 14.
+- **Implementation**: no system directories, no shell replacement, no explorer injection. Autostart writes only one HKCU Run value, removable by the uninstall script.
+- **Evidence**: `internal/win32/app_windows.go`, `scripts/uninstall.ps1`, `docs/ACCEPTANCE.md`.
 
 ### Highlight 2: One token set, four consistent components
 
-- **Name**: Unified token layer.
-- **Value**: Solves "four tools stacked together with four different radii, shadows and easings".
-- **Implementation (planned)**: Radius, spacing, shadow, blur radius, animation duration and easing are defined centrally; components only read.
-- **Differentiation**: Most alternatives are built by different authors and are inconsistent by nature.
-- **Evidence**: To be provided after implementation.
+- **Implementation**: radii, spacing, blur, opacity, motion and fonts are defined centrally; components only read.
+- **Evidence**: `internal/tokens/tokens.go` and `internal/tokens/tokens_test.go`.
 
 ### Highlight 3: Performance budget as a release gate
 
-- **Name**: Three hard targets.
-- **Value**: Solves "installing a beautification tool made everything slow" — the second most common reason such tools get uninstalled.
-- **Implementation (planned)**: Idle CPU < 1%, idle memory < 150 MB, dock magnification ≥ 55 fps. If unmet, it does not ship.
-- **Differentiation**: Most tools treat performance as "later optimisation"; this project treats it as an entry requirement.
-- **Evidence**: To be provided after implementation.
+- **Implementation**: components are togglable, timers are throttled, and Dock repaints only on pointer changes.
+- **Evidence**: logic tests and cross-build via `scripts/check.sh`; CPU/memory/frame rate must be measured on Windows per `docs/ACCEPTANCE.md`.
 
 ### Highlight 4: Selectable components, no bundling
 
-- **Name**: Enable what you need.
-- **Value**: Solves "I only wanted the dock and got four things forced on me".
-- **Implementation (planned)**: Four independent components, installable and disableable individually; a disabled component leaves no process behind.
-- **Differentiation**: All-in-one packs usually bind every component together.
-- **Evidence**: To be provided after implementation.
+- **Implementation**: four independent component switches in config, CLI, tray and settings window.
+- **Evidence**: `internal/config/config_test.go`, `internal/app/settings_test.go`, and the Windows acceptance checklist.
 
-### Highlight 5: Reuse system capabilities first, do not reinvent
+### Highlight 5: Reuse system capabilities first
 
-- **Name**: System blur before custom blur.
-- **Value**: Solves "custom-drawn frosted glass causing battery drain and dropped frames".
-- **Implementation (planned)**: Prefer DWM / acrylic and other system blur; custom drawing only as a fallback where unsupported.
-- **Differentiation**: Custom blur is expensive on low-end machines and competes with the system compositor.
-- **Evidence**: To be provided after implementation.
+- **Implementation**: request DWM system acrylic first; degrade to translucent GDI drawing when unsupported.
+- **Evidence**: `DwmSetSystemBackdrop` and `SetLayeredWindowAttributes` in `internal/win32/win32_windows.go`.
 
 ---
 
@@ -241,179 +222,146 @@ Uninstalling must restore:
 
 ## 6. Technology Stack and Dependencies
 
-**Not decided.** The planning stage avoids naming a framework rather than writing a selection table that will be overturned later.
-
-### 6.1 Fixed constraints
+**Selected stack: Go 1.22+ standard library + public Win32 APIs, zero third-party runtime dependencies.**
 
 | Constraint | Content |
 |---|---|
-| Runtime | Windows 10 / 11, user mode, runs without administrator privileges |
-| System changes | None. No writes to system directories, no shell replacement |
-| Dependency discipline | As few runtime dependencies as possible; prefer system capabilities |
-| License | Apache-2.0 (core & API) / MIT (shells) |
+| Runtime | Windows 10 / 11, user mode, no administrator rights |
+| System changes | None. No system directories, no shell replacement |
+| Rendering | Native windows + GDI + DWM system backdrop |
+| System interfaces | Public Win32 APIs; read-only status |
+| Local interface | Loopback HTTP on 127.0.0.1, configurable port |
+| Licence | Apache-2.0 (core & API) / MIT (shells) |
 
-### 6.2 Directional thinking (not a settled choice)
-
-| Layer | Direction | Status |
-|---|---|---|
-| UI rendering | Native windows plus system composition; no self-built rendering engine | To be assessed |
-| Blur | Prefer DWM / acrylic | To be verified |
-| System interfaces | Public Win32 APIs and Windows App SDK | To be assessed |
-| Component communication | In-process modules or local IPC | To be assessed |
-
-### 6.3 Dependency list
-
-**Zero at present.** The repository contains no code and therefore no direct or indirect dependencies. Any future dependency must be registered here with name, version, copyright holder, license, address, purpose and modification status.
+Dependencies: zero third-party runtime dependencies; Go toolchain (BSD-3-Clause) is build-only. See [NOTICE](NOTICE).
 
 ---
 
 ## 7. Installation and Deployment
 
-**Nothing is installable yet.** The repository holds documentation only — no code, no build scripts, no releases.
-
-Planned distribution (unimplemented):
+A Windows portable build directory and PowerShell install/uninstall scripts are provided.
 
 | Platform | Form | Status |
 |---|---|---|
-| Windows 11 | `.exe` installer / portable build | Planned |
-| Windows 10 | Same as above | Planned |
+| Windows 11 | Portable `desop.exe` directory | ✅ Buildable; Windows acceptance pending |
+| Windows 10 | Same | ✅ Buildable; Windows acceptance pending |
 
-**The only viable route today**: `git clone https://github.com/ntars/Desop.git`, then read the documentation.
+Build: `./scripts/build.sh`. See [`docs/INSTALL.md`](docs/INSTALL.md) and [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md).
 
 ---
 
 ## 8. Quick Start
 
-**There is nothing to start yet** — nothing runs.
+```text
+./scripts/build.sh
+cd release/desop-<version>
+desop.exe
+desop.exe status
+desop.exe settings
+desop.exe enable dock,widgets
+desop.exe disable island
+desop.exe api-event
+desop.exe selftest
+```
 
-To understand the project, read in this order:
-
-1. Chapter 2, Overview — what it wants to solve;
-2. Chapter 3, Core Features — what each of the four components does;
-3. Section 15.3, Questions to validate — what is still unanswered.
+Right-click the tray icon to toggle components, switch autostart, restart or exit. Full steps: [`docs/INSTALL.md`](docs/INSTALL.md).
 
 ---
 
 ## 9. Configuration
 
-**No configuration exists.** The project is unimplemented; there is no config file, environment variable or command-line argument.
-
-Planned configuration (unimplemented):
+Config file: `%APPDATA%\Desop\config.json`; created on first launch. Component toggles are available in the settings window and CLI.
 
 | Category | Content | Status |
 |---|---|---|
-| Component switches | Enable/disable each of the four components | Planned |
-| Appearance | Accent colour, blur strength, radius preset | Planned |
-| Behaviour | Auto-hide, trigger-zone width, launch at startup | Planned |
-| Advanced | Debug logging, performance diagnostics | Planned |
+| Component toggles | Enable/disable each of the four components | ✅ |
+| Appearance | Shared tokens; theme/blur level UI | ⚠ Tokens centralised, UI levels pending |
+| Behaviour | Auto-hide, trigger width, autostart | ✅ Partially implemented |
+| Advanced | Debug logs, performance diagnostics | ⚠ Not implemented |
 
 ---
 
 ## 10. API and Module Reference
 
-**No API, no modules.** The repository contains only `README.md`, `README_EN.md` and `LICENSE`.
-
-Planned module split (unimplemented):
-
 | Module | Responsibility | Status |
 |---|---|---|
-| Token layer | The single definition of radius, shadow and easing | Planned |
-| Dock | Icon magnification, running indicators, auto-hide | Planned |
-| Menu bar | Global menu, status area, tray consolidation | Planned |
-| Widgets | Clock, system status, notes, weather | Planned |
-| Dynamic island | Capsule form, expand animation, event intake | Planned |
-| Local interface | Lets third parties push dynamic-island status | Planned |
+| `internal/tokens` | Single definition of radii, shadows and motion | ✅ |
+| `internal/dock` | Icon layout, magnification, running indicators | ✅ |
+| `internal/topbar` | Status aggregation, layout, auto-hide policy | ✅ Partial |
+| `internal/widgets` | Clock, system status, notes, weather fallback | ✅ |
+| `internal/island` | Capsule and local event API | ✅ |
+| `internal/win32` | Native windows, tray, read-only system interfaces | ✅ |
+| `cmd/desop` | Entry point and CLI | ✅ |
+
+Local API: `POST http://127.0.0.1:17890/event`, `POST /dismiss`, `GET /health`. Example: `desop.exe api-event`.
 
 ---
 
 ## 11. Repository Layout
 
-**Actual structure today**:
-
-```
+```text
 Desop/
-├── README.md          # Chinese documentation
-├── README_EN.md       # English documentation (this file)
-├── LICENSE            # Apache-2.0 full text (GitHub detects the license from this)
-├── LICENSE-MIT        # MIT full text
-└── LICENSING.md       # Layer routing table (human-readable)
-```
-
-Planned structure (not created):
-
-```
-Desop/
-├── tokens/            # Design token layer
-├── components/
-│   ├── dock/          # Dock
-│   ├── topbar/        # Menu bar
-│   ├── widgets/       # Desktop widgets
-│   └── island/        # Dynamic island
-├── system/            # System interface wrappers (windows, tray, media session, performance counters)
-├── docs/              # Design and validation documents
-├── tests/             # Assertions
-└── tools/             # Build and check scripts
+├── cmd/desop/          # entry point and CLI
+├── internal/           # tokens, config, four component cores, Win32 layer
+├── docs/               # BUILD / INSTALL / ACCEPTANCE
+├── scripts/            # build/check/install/uninstall
+├── release/            # build output (gitignore)
+├── README.md / README_EN.md
+├── LICENSE / LICENSE-MIT / NOTICE / LICENSING.md
+└── CHANGELOG.md
 ```
 
 ---
 
 ## 12. Performance
 
-**No measured data.** The project is unimplemented; any performance figure would be a guess, and this project does not write guesses.
-
-Planned targets, serving as release gates rather than current results:
+**Automated results and Windows measurements are recorded separately.** Formatting, tests and cross-build are covered by `./scripts/check.sh`; the following targets still require Windows acceptance per `docs/ACCEPTANCE.md`:
 
 | Metric | Target | Status |
 |---|---|---|
-| Idle CPU | < 1% (all four components enabled) | Unverified |
-| Idle memory | < 150 MB | Unverified |
-| Dock magnification frame rate | ≥ 55 fps (1080p, 20 icons) | Unverified |
-| Cold start | ≤ 2 s | Unverified |
+| Idle CPU | < 1% (all four components enabled) | Windows acceptance pending |
+| Idle memory | < 150 MB | Windows acceptance pending |
+| Dock magnification frame rate | ≥ 55 fps (1080p, 20 icons) | Windows acceptance pending |
+| Cold start | ≤ 2 s | Windows acceptance pending |
 
-If the targets are not met, it does not ship — rather than "ship first, optimise later".
+A stable release is blocked until these targets are met.
 
 ---
 
 ## 13. Security and Privacy
 
-**This chapter records design principles to be honoured during implementation.**
+| Dimension | Current implementation |
+|---|---|
+| System changes | None. User mode, no writes to system directories |
+| Privileges | No administrator rights required |
+| Network | Loopback only by default; weather never fetches by itself |
+| Data collection | No telemetry, no analytics, no crash reporting |
+| Local storage | Configuration and note text only |
+| Notification listening | Not implemented; no permission requested |
 
-| Dimension | Planned approach | Status |
-|---|---|---|
-| System changes | None. Runs in user mode, no writes to system directories | Planned |
-| Privileges | No administrator rights required | Planned |
-| Network | Zero network requests by default (weather only when the user configures it) | Planned |
-| Data collection | No telemetry, no analytics, no crash reporting | Planned |
-| Local storage | Configuration only, never user content | Planned |
-| Notification listening | Requires explicit authorisation, revocable at any time | Planned |
-
-**Explicitly not done**: no data uploads, no reading of user file contents, no silent background networking.
+**Explicitly not done**: no uploads, no reading user file contents, no silent background networking.
 
 ---
 
 ## 14. Compatibility
 
-**There is nothing to be compatible with yet** — no runnable artefact.
-
-Planned range (unverified):
-
-| Item | Plan | Status |
-|---|---|---|
-| Windows 11 | Full support | Planned |
-| Windows 10 (1809+) | Supported, some blur effects degrade | Planned |
-| Multiple monitors | Supported, including mixed DPI | Planned |
-| High DPI (125% / 150% / 200%) | Supported | Planned |
-| Windows 7 / 8 | **Unsupported** | Explicitly excluded |
+| Item | Status |
+|---|---|
+| Windows 11 | Buildable; Windows acceptance pending |
+| Windows 10 (1809+) | Buildable; some blur effects degrade |
+| Multiple monitors | Primary-screen MVP; mixed DPI acceptance pending |
+| High DPI (125% / 150% / 200%) | Work-area coordinates are used; real-device verification needed |
+| Windows 7 / 8 | Unsupported |
 
 ---
 
 ## 15. Known Issues and Limitations
 
-### 15.1 Facts about the current stage
+### 15.1 Current facts
 
-1. **There is no code.** The repository holds documentation and a licence only.
-2. **There is no schedule.** The planning stage makes no release-date commitment.
-3. **The technical route is undecided.** The thinking in Chapter 6 may be overturned by validation results.
+1. **Buildable code exists**: Windows user-mode implementation using the Go standard library.
+2. **Build and deployment scripts exist**: `scripts/build.sh`, `scripts/check.sh`, PowerShell install/uninstall.
+3. **Windows acceptance is pending**: this repository was validated on macOS with logical tests and cross-compilation; GUI/DPI/performance must be proven on Windows.
 
 ### 15.2 Identified design limitations
 
@@ -424,9 +372,8 @@ Planned range (unverified):
 | Some blur effects depend on the OS version | Windows 10 and 11 differ in capability | Mitigated by the fallback chain |
 | May be flagged by security software | Involves system-level hooks | Must be verified early; drop the feature if necessary |
 
-### 15.3 Questions that must be answered before development
+### 15.3 Questions now answered by the MVP or pending Windows acceptance
 
-No answer, no code:
 
 | Question | Why it matters |
 |---|---|
@@ -440,44 +387,30 @@ No answer, no code:
 
 ## 16. Changelog
 
-**No versions yet.** The project is at the planning stage and has released nothing.
-
-The changelog will live on the **GitHub Releases** page: <https://github.com/ntars/Desop/releases>
-
-The README describes the project's current state; releases record what changed each time. The two are never mixed.
+See [CHANGELOG.md](CHANGELOG.md) for the first buildable version. Releases: <https://github.com/ntars/Desop/releases>.
 
 ---
 
 ## 17. Roadmap
 
-Ordered by dependency; each item is a prerequisite for the next. **None has started.**
+The current version is an MVP; next steps follow Windows acceptance:
 
-1. **Technical validation**: answer the five questions in 15.3, especially "does uninstall fully restore" and "does security software flag it".
-2. **Design token layer**: settle radius, shadow and easing before any component — otherwise four components grow four systems.
-3. **Dock**: build it alone and verify the performance budget is reachable.
-4. **Desktop widgets**: verify the feel of dragging and snapping.
-5. **Menu bar**: status area and tray consolidation first; the global menu depends on coverage.
-6. **Dynamic island**: last, since it relies on the animation foundation the earlier components establish.
+1. Fix blocking issues found by the acceptance checklist;
+2. Refine Dock motion curves and spring expansion;
+3. Decide on global menu and tray consolidation based on coverage;
+4. Add more widgets and multi-monitor policies.
 
 ---
 
 ## 18. Contributing
 
-**Code contributions are not accepted at this stage** — there is no code to change.
+Scenario, compatibility and feel feedback are welcome. Code contributors should read `docs/ACCEPTANCE.md` and keep changes verifiable.
 
-What is useful now:
+Contribution rules:
 
-- **Describe your scenario**: which component do you want most? What do you use instead today, and what is wrong with it?
-- **Report compatibility**: if you have hit problems with beautification tools on a specific Windows version, DPI or multi-monitor setup, describe them.
-- **Suggest feel**: which macOS animation details do existing Windows tools get wrong?
-
-Issues should state the Windows version, display configuration and scaling factor.
-
-**Contribution discipline** (for the future):
-
-1. Changes to design tokens must update the token layer definition; hard-coding inside components is not allowed;
-2. A new dependency must be registered in NOTICE before the code is merged;
-3. Code of unknown origin or with an incompatible licence must not be introduced.
+1. Token changes must update the token layer, never hard-code in components;
+2. Register new dependencies in NOTICE before merging;
+3. Do not introduce unknown or incompatible code licences.
 
 ---
 
