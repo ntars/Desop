@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "desop-macos"
+version = "0.1.0"
+description = "Desop - macOS-style desktop layer for Windows written in Python"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+authors = [
+  {name = "Ntarstudio", email = "contact@ntars.cn"}
+]
+requires-python = ">=3.10"
+dependencies = [
+    "PySide6>=6.5",
+    "psutil>=5.9",
+    "Pillow>=10.0",
+    "Jinja2>=3.0"
+]
+
+[project.scripts]
+desop = "desop.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["desop*"]
+
+[tool.pyinstaller]
+hook-dirs = ["hooks"]

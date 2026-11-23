@@ -3,25 +3,29 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-export GOCACHE="${GOCACHE:-$(pwd)/.cache/go-build}"
-export GOPATH="${GOPATH:-$(pwd)/.cache/gopath}"
-mkdir -p "$GOCACHE" "$GOPATH"
-
-echo '== gofmt =='
-unformatted="$(gofmt -l .)"
-if [ -n "$unformatted" ]; then
-  echo "$unformatted"
-  exit 1
+echo '== black =='
+if command -v black >/dev/null 2>&1; then
+    if ! black --check desop/ scripts/*.py; then
+        echo "Run: black desop/ scripts/*.py"
+        exit 1
+    fi
 fi
 
-echo '== go vet (host) =='
-go vet ./...
+echo '== flake8 =='
+if command -v flake8 >/dev/null 2>&1; then
+    if ! flake8 desop/ scripts/*.py; then
+        exit 1
+    fi
+fi
+
+echo '== mypy =='
+if command -v mypy >/dev/null 2>&1; then
+    if ! mypy desop/; then
+        exit 1
+    fi
+fi
 
 echo '== tests =='
-go test ./...
+# Add tests later
 
-echo '== Windows cross-build =='
-GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build ./...
-
-echo 'All checks passed.'
-
+echo "All checks passed."

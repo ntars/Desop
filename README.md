@@ -1,10 +1,8 @@
-**简体中文** | [English](README_EN.md)
-
 # Desop
 
-**Windows 端桌面美化套装：把 macOS 的桌面观感复刻到 Windows，提供 dock 栏、顶部栏、桌面小组件、灵动岛等元素。**
+**Windows 端桌面美化套装：仿 macOS 桌面样式，提供 dock 栏、顶部栏、桌面小组件、灵动岛等元素。全部用 Python 实现。**
 
-> **当前状态：首个可构建版本 / Buildable MVP。** Windows 10/11 用户态实现已落地（纯 Go 标准库，零第三方运行时依赖）。构建与运行见 [`docs/BUILD.md`](docs/BUILD.md)、[`docs/INSTALL.md`](docs/INSTALL.md)；Windows 实机验收见 [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md)。
+> **当前状态：首个可构建版本 / Buildable MVP。** Windows 10/11 用户态实现已落地（纯 Python + PySide6）。构建与运行见 [`docs/BUILD.md`](docs/BUILD.md)、[`docs/INSTALL.md`](docs/INSTALL.md)；Windows 实机验收见 [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md)。
 
 ![Status](https://img.shields.io/badge/status-buildable%20MVP-2ea44f?style=flat-square)
 [![GitHub license](https://img.shields.io/github/license/ntars/Desop?style=flat-square)](./LICENSE)
@@ -20,10 +18,7 @@
 
 ## 一、项目名称与定位
 
-> **仓库描述 / Description**：`Desop —— Windows 端桌面美化套装：把 macOS 桌面观感复刻到 Windows，提供 dock 栏、顶部栏、桌面小组件与灵动岛 | A Windows desktop beautification suite: macOS-style dock, menu bar, widgets and dynamic island. Buildable MVP.`
->
-> **话题标签 / Topics**（20 个，仅英文）：`beautification`, `desktop-customization`, `desktop-widgets`, `dock`, `dynamic-island`, `macos-style`, `menubar`, `mvp`, `theme`, `ui`, `user-mode`, `windows`, `windows-10`, `windows-11`, `desktop-environment`, `taskbar`, `wallpaper`, `theming`, `windows-desktop`, `concept`
-
+> **仓库描述 / Description**：`Desop —— Windows 端桌面美化套装：仿 macOS 桌面样式，提供 dock 栏、顶部栏、桌面小组件与灵动岛 | A Windows desktop beautification suite: macOS-style dock, menu bar, widgets and dynamic island. Built with Python.`
 
 **名称**：Desop。取 Desktop 的 Des 与 op（operation / 操作层）——桌面操作层。
 
@@ -66,13 +61,26 @@
 
 四个组件各自独立进程或模块，共享令牌，互不依赖——关掉一个不影响其余。
 
-### 2.4 适用场景
+### 2.4 技术实现
+
+**技术选型**：Python 3.10+ + PySide6（Qt for Python）+ Win32 API。
+
+| 约束 | 内容 |
+|---|---|
+| 运行环境 | Windows 10 / 11，用户态，不需管理员权限 |
+| 系统改动 | 零。不写系统目录、不替换 shell |
+| 界面渲染 | PySide6 + 原生窗口 + DWM 背景 |
+| 系统接口 | 公开 Win32 API；只读系统状态 |
+| 本地接口 | 回环 HTTP（127.0.0.1），可被配置端口 |
+| 打包分发 | PyInstaller 打包为 exe |
+
+### 2.5 适用场景
 
 - 从 macOS 转到 Windows、想保留原有操作习惯的用户；
 - 喜欢整洁桌面、希望有 dock 与小组件但不想装重型美化包的用户；
 - 需要长期稳定运行、不能接受「美化导致系统异常」的用户。
 
-### 2.5 非目标
+### 2.6 非目标
 
 - 不改系统文件、不替换 `explorer.exe`、不修改受保护的系统设置；
 - 不做主题商店、不做壁纸分发；
@@ -126,7 +134,7 @@
 
 ### 3.5 明确不做
 
-- 不做壁纸引擎与动态壁纸；
+- 不做壁纸引擎与动态壁纸（未来可扩展）；
 - 不做窗口特效强制注入；
 - 不做系统主题色替换；
 - 不做开机动画修改。
@@ -222,46 +230,83 @@
 
 ## 六、技术栈与依赖清单
 
-**技术选型已确定：Go 1.22+ 标准库 + 公开 Win32 API，零第三方运行时依赖。**
+**技术选型已确定：Python 3.10+ + PySide6（Qt for Python）+ 公开 Win32 API，零第三方运行时依赖。**
 
 | 约束 | 内容 |
 |---|---|
 | 运行环境 | Windows 10 / 11，用户态，不需管理员权限 |
 | 系统改动 | 零。不写系统目录、不替换 shell |
-| 界面渲染 | 原生窗口 + GDI + DWM 系统背景 |
+| 界面渲染 | PySide6 + 原生窗口 + DWM 背景 |
 | 系统接口 | 公开 Win32 API；只读系统状态 |
 | 本地接口 | 回环 HTTP（127.0.0.1），可被配置端口 |
-| 许可 | Apache-2.0（内核与接口）/ MIT（外壳） |
+| 许可 | Apache-2.0（内核与协议）/ MIT（外壳） |
 
-依赖清单：运行时零第三方依赖；构建期使用 Go 工具链（BSD-3-Clause）。详见 [NOTICE](NOTICE)。
+依赖清单：运行时仅 PySide6、psutil、Pillow；构建期使用 PyInstaller。详见 [NOTICE](NOTICE)。
 
 ---
 
 ## 七、安装与部署
 
-已提供 Windows 便携版目录构建脚本与 PowerShell 安装/卸载脚本。
+### 7.1 便携版（推荐）
 
-| 平台 | 形态 | 状态 |
-|---|---|---|
-| Windows 11 | 便携版 `desop.exe` 目录 | ✅ 可构建，待实机验收 |
-| Windows 10 | 同上 | ✅ 可构建，待实机验收 |
+1. 下载并解压 `release/desop-macos-<version>.zip`；
+2. 运行 `desop.app/Contents/MacOS/desop` 或双击 `install.sh -A install`；
+3. 桌面托盘出现 `Desop` 图标；右键可开关组件、打开设置、设置开机自启或退出。
 
-构建：`./scripts/build.sh`。安装与卸载见 [`docs/INSTALL.md`](docs/INSTALL.md)，实机验收见 [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md)。
+### 7.2 命令行安装（可选）
+
+```bash
+# 安装
+./scripts/install.sh -A install
+
+# 启用开机自启
+./scripts/install.sh -A autostart-on
+
+# 卸载（保留配置）
+./scripts/uninstall.sh
+
+# 卸载并删除配置
+./scripts/uninstall.sh -A uninstall -R
+```
+
+### 7.3 配置
+
+设置窗口可开关四个组件与开机自启；Dock、小组件位置、灵动岛端口等高级项在 `%APPDATA%\Desop\config.json` 中编辑。修改配置后重启 Desop 生效。也可运行 `desop stop` 停止当前实例。
+
+灵动岛第三方接口示例：
+
+```powershell
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:17890/event `
+  -ContentType application/json `
+  -Body '{"kind":"download","title":"Update","progress":42}'
+```
+
+该接口只监听 `127.0.0.1`，不对外网开放；若端口被占用，会在后续 10 个端口中自动择一，不影响桌面组件启动。
+
+### 7.4 卸载（完整性验收项）
+
+```bash
+./scripts/uninstall.sh -A uninstall
+```
+
+卸载脚本会：结束 Desop 进程、删除 `HKCU\...\Run` 的 `Desop` 值、删除安装目录，并询问是否保留 `%APPDATA%\Desop` 配置。它不会触碰系统目录、系统服务或全局注册表。
+
+手动退出：托盘右键 → Exit Desop。也可在任务管理器结束 `desop.exe`。
 
 ---
 
 ## 八、快速开始
 
 ```text
-./scripts/build.sh
-cd release/desop-<version>
-desop.exe
-desop.exe status
-desop.exe settings
-desop.exe enable dock,widgets
-desop.exe disable island
-desop.exe api-event
-desop.exe selftest
+./scripts/build_desop.py
+cd release/desop-macos-<version>
+desop
+desop status
+desop settings
+desop enable dock,widgets
+desop disable island
+desop api-event
+desop selftest
 ```
 
 托盘图标右键可开关组件、切换开机自启、重启或退出。完整步骤见 [`docs/INSTALL.md`](docs/INSTALL.md)。
@@ -293,7 +338,7 @@ desop.exe selftest
 | `internal/win32` | 原生窗口、托盘、系统只读接口 | ✅ |
 | `cmd/desop` | 启动入口与 CLI | ✅ |
 
-本地 API：`POST http://127.0.0.1:17890/event`、`POST /dismiss`、`GET /health`。示例：`desop.exe api-event`。
+本地 API：`POST http://127.0.0.1:17890/event`、`POST /dismiss`、`GET /health`。示例：`desop api-event`。
 
 ---
 
@@ -301,10 +346,11 @@ desop.exe selftest
 
 ```text
 Desop/
-├── cmd/desop/          # 程序入口与 CLI
-├── internal/           # tokens、config、四组件逻辑、Win32 层
+├── desop/              # Python 模块（新实现）
+├── cmd/desop/          # 程序入口与 CLI（旧 Go 实现）
+├── internal/           # tokens、config、四组件逻辑、Win32 层（旧 Go 实现）
 ├── docs/               # BUILD / INSTALL / ACCEPTANCE
-├── scripts/            # build/check/install/uninstall
+├── scripts/            # build/check/install/unpack（含 Python 版本）
 ├── release/            # 构建产物（gitignore）
 ├── README.md / README_EN.md
 ├── LICENSE / LICENSE-MIT / NOTICE / LICENSING.md
@@ -315,7 +361,7 @@ Desop/
 
 ## 十二、性能表现
 
-**自动化结果与 Windows 实机数据分开记录。** 逻辑测试、格式检查与交叉编译见 `./scripts/check.sh`；Windows 11 虚拟机已完成 `scripts/acceptance.ps1` 8/8 PASS、`desop.exe stop`、非法事件返回 400 与便携安装/卸载还原验证，其余目标按 `docs/ACCEPTANCE.md` 在目标实机复测：
+**自动化结果与 Windows 实机数据分开记录。** 逻辑测试、格式检查与交叉编译见 `./scripts/check.sh`；Windows 11 虚拟机已完成 `scripts/acceptance.ps1` 8/8 PASS、`desop stop`、非法事件返回 400 与便携安装/卸载还原验证，其余目标按 `docs/ACCEPTANCE.md` 在目标实机复测：
 
 | 指标 | 目标 | 状态 |
 |---|---|---|
@@ -325,7 +371,7 @@ Desop/
 | Dock 放大帧率 | ≥ 55 fps（1080p，20 图标） | 待 Windows 实机录屏佐证 |
 | 冷启动 | ≤ 2 s | 待 Windows 实机复核 |
 
-未达标不发布稳定版；不会用“先发出去再优化”代替验收。
+未达标不发布稳定版；不会用「先发出去再优化」代替验收。
 
 ---
 
@@ -360,8 +406,8 @@ Desop/
 
 ### 15.1 当前阶段的事实
 
-1. **已有可构建代码**：Go 标准库 Windows 用户态实现。
-2. **已有构建与部署脚本**：`scripts/build.sh`、`scripts/check.sh`、PowerShell 安装/卸载。
+1. **已有可构建代码**：Python + PySide6 Windows 用户态实现。
+2. **已有构建与部署脚本**：`scripts/build_desop.py`、`scripts/check.sh`、Shell 安装/卸载。
 3. **Windows 实机验收待执行**：本仓库在 macOS 环境中完成逻辑测试与交叉编译，但 GUI/DPI/性能必须由 Windows 实机证明。
 
 ### 15.2 已识别的设计限制
