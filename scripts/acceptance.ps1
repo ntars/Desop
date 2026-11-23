@@ -68,8 +68,11 @@ if (-not $SkipLocalAPI) {
   Record 'island loopback health API' ($null -ne $health -and $health.ok -eq $true) ''
 }
 
-$selfTest = & $exePath selftest 2>&1
-Record 'idle CPU and working-set self-test' ($LASTEXITCODE -eq 0 -and "$selfTest" -match 'cpu: PASS' -and "$selfTest" -match 'memory: PASS') ("$selfTest" -replace "`r?`n", ' | ')
+$selfTestRaw = & $exePath selftest 3 2>&1
+$selfTest = "$selfTestRaw" -replace "`r?`n", ' | '
+Record 'idle CPU, memory and flicker self-test' ($LASTEXITCODE -eq 0 -and $selfTest -match 'cpu: PASS' -and $selfTest -match 'memory: PASS' -and $selfTest -match 'flicker: PASS') $selfTest
+Write-Host '--- selftest detail ---'
+Write-Host $selfTest
 
 $results | Format-Table -AutoSize
 $originalConfig | Set-Content -Path $config -NoNewline -ErrorAction SilentlyContinue

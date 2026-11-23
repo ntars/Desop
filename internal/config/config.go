@@ -251,7 +251,14 @@ func Load(path string) (Config, error) {
 	if err != nil {
 		return Config{}, fmt.Errorf("read config: %w", err)
 	}
-	return Parse(data)
+	parsed, err := Parse(data)
+	if err != nil {
+		// A truncated or corrupt settings file must never make the desktop
+		// unusable. Fall back to defaults; the next Save rewrites the file.
+		_ = os.Remove(path)
+		return Default(), nil
+	}
+	return parsed, nil
 }
 
 // LoadOrCreate loads the config and writes defaults when the file is absent.

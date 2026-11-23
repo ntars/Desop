@@ -44,3 +44,20 @@ func TestLoadOrCreatePreservesExisting(t *testing.T) {
 		t.Fatalf("existing config was overwritten: %+v", got.Dock)
 	}
 }
+
+func TestLoadRecoversFromCorruptConfig(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.json")
+	if err := os.WriteFile(path, []byte("{"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	got, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Version != Default().Version {
+		t.Fatalf("corrupt config did not fall back to defaults: %+v", got)
+	}
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		t.Fatalf("corrupt config should be removed for rewrite: %v", err)
+	}
+}

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/ntars/Desop/internal/app"
@@ -101,6 +102,10 @@ func run(args []string) error {
 }
 
 func startDesktop(cfg config.Config, path string) error {
+	// Win32 windows and their message queues belong to the creating thread.
+	// Keep the desktop owner on one OS thread for its entire lifetime.
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
 	w, err := win32.NewDesktopWindow(cfg, path)
 	if err != nil {
 		return err
@@ -113,6 +118,9 @@ func startDesktop(cfg config.Config, path string) error {
 	// The tray icon remains available until the user exits through its menu.
 	// A short sleep keeps the polling loop from consuming a full CPU core.
 	for {
+		if err := w.RefreshDue(); err != nil {
+			return err
+		}
 		if !w.PumpMessages() {
 			return nil
 		}

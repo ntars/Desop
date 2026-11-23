@@ -69,6 +69,11 @@ type DesktopWindow struct {
 	stopEvent   HANDLE
 	stopName    string
 	wndProc     uintptr
+	dirty       map[HWND]struct{}
+	frozen      bool
+	paintFrames uint64
+	topVisible  bool
+	dockVisible bool
 }
 
 type widgetDrag struct {
@@ -192,17 +197,15 @@ func (d *DesktopWindow) Start() error {
 	ShowWindow(d.hwnd, SW_HIDE)
 	// Component windows were created while hidden by the host; trigger their
 	// first paint so the desktop is visible before the first throttled refresh.
-	if d.cfg.TopBar.Enabled && d.hTop != 0 {
-		InvalidateRect(d.hTop, false)
+	d.dirty = make(map[HWND]struct{})
+	d.markFullRefresh()
+	if d.hTop != 0 {
+		d.topVisible = true
 	}
-	if d.cfg.Widgets.Enabled {
-		for _, h := range d.widgetWindows() {
-			InvalidateRect(h, false)
-		}
+	if d.hDock != 0 {
+		d.dockVisible = true
 	}
-	if d.cfg.Island.Enabled && d.hIsland != 0 {
-		InvalidateRect(d.hIsland, false)
-	}
+	d.flushRepaints()
 	return nil
 }
 
@@ -231,13 +234,36 @@ func (d *DesktopWindow) PumpMessages() bool {
 		return false
 	}
 	if !d.closing && !d.restarting && !d.closed {
-		d.tick++
-		if d.tick%refreshEvery == 1 {
-			d.refresh()
-		}
 		d.refreshDockMotion()
 	}
 	return !d.closing
+}
+
+// RefreshDue runs the low-frequency top bar/widget/island refresh. Keeping it
+// outside PumpMessages lets performance selftests measure an idle desktop.
+func (d *DesktopWindow) RefreshDue() error {
+	if d.closed || d.frozen {
+		return nil
+	}
+	d.tick++
+	if d.tick%refreshEvery == 1 {
+		d.refresh()
+	}
+	return nil
+}
+
+// FreezeRefresh stops periodic content updates for the rest of the session.
+func (d *DesktopWindow) FreezeRefresh() error {
+	if d.closed {
+		return fmt.Errorf("desktop already closed")
+	}
+	d.frozen = true
+	return nil
+}
+
+// PaintFrames returns the number of WM_PAINT frames processed so far.
+func (d *DesktopWindow) PaintFrames() uint64 {
+	return d.paintFrames
 }
 
 // Close removes all windows, timers and tray state. It is idempotent.
@@ -417,6 +443,8 @@ func (d *DesktopWindow) wndProcFunc(hwnd HWND, msg uint32, wp, lp uintptr) uintp
 			return 0
 		}
 	case WM_PAINT:
+		delete(d.dirty, hwnd)
+		d.paintFrames++
 		d.paint(hwnd)
 		return 0
 	case WM_LBUTTONDOWN:
@@ -444,12 +472,30 @@ func (d *DesktopWindow) wndProcFunc(hwnd HWND, msg uint32, wp, lp uintptr) uintp
 }
 
 func (d *DesktopWindow) refresh() {
-	if d.cfg.TopBar.Enabled && d.hTop != 0 {
-		InvalidateRect(d.hTop, false)
+	fullscreen := d.confirmedFullscreen()
+	visible := !topbar.ShouldAutoHide(d.cfg.TopBar, fullscreen)
+	if d.hTop != 0 {
+		if d.topVisible != visible {
+			d.topVisible = visible
+			showWindow(d.hTop, visible)
+		}
+		if visible {
+			d.markDirty(d.hTop)
+		}
+	}
+	if d.hDock != 0 {
+		dockVisible := visible
+		if d.cfg.Dock.AutoHide && !IsCursorOver(d.hDock) {
+			dockVisible = false
+		}
+		if d.dockVisible != dockVisible {
+			d.dockVisible = dockVisible
+			showWindow(d.hDock, dockVisible)
+		}
 	}
 	if d.cfg.Widgets.Enabled {
-		for _, h := range d.hWidgets {
-			InvalidateRect(h, false)
+		for _, h := range d.widgetWindows() {
+			d.markDirty(h)
 		}
 	}
 	if d.cfg.Island.Enabled && d.hIsland != 0 {
@@ -459,29 +505,9 @@ func (d *DesktopWindow) refresh() {
 			d.islandRect = rect
 			moveWindow(d.hIsland, rect)
 		}
-		InvalidateRect(d.hIsland, false)
+		d.markDirty(d.hIsland)
 	}
-	fullscreen := d.confirmedFullscreen()
-	visible := uintptr(1)
-	if topbar.ShouldAutoHide(d.cfg.TopBar, fullscreen) {
-		visible = 0
-	}
-	if d.hTop != 0 {
-		ShowWindow(d.hTop, int32(map[bool]int32{true: SW_SHOWNORMAL, false: SW_HIDE}[visible == 1]))
-	}
-	if d.hDock != 0 {
-		dockVisible := visible == 1
-		pointer := GetCursorPos()
-		trigger := d.dockWindowRect()
-		if d.cfg.Dock.AutoHide && !IsCursorOver(d.hDock) && !trigger.Contains(geometry.Point{X: int(pointer.X), Y: int(pointer.Y)}) {
-			dockVisible = false
-		}
-		showDock := int32(SW_HIDE)
-		if dockVisible {
-			showDock = SW_SHOWNORMAL
-		}
-		ShowWindow(d.hDock, showDock)
-	}
+	d.flushRepaints()
 	if d.hNoteEdit != 0 {
 		note := windowText(d.hNoteEdit)
 		if note != d.cfg.Widgets.Note {
@@ -489,6 +515,47 @@ func (d *DesktopWindow) refresh() {
 			_ = config.Save(d.cfgPath, d.cfg)
 		}
 	}
+}
+
+func (d *DesktopWindow) markDirty(h HWND) {
+	if d.dirty == nil {
+		d.dirty = make(map[HWND]struct{})
+	}
+	d.dirty[h] = struct{}{}
+}
+
+// markFullRefresh requests the next paint for every enabled component window.
+// The dock is motion-driven and is deliberately excluded from periodic repaint.
+func (d *DesktopWindow) markFullRefresh() {
+	if d.cfg.TopBar.Enabled && d.hTop != 0 {
+		d.markDirty(d.hTop)
+	}
+	if d.cfg.Widgets.Enabled {
+		for _, h := range d.widgetWindows() {
+			d.markDirty(h)
+		}
+	}
+	if d.cfg.Island.Enabled && d.hIsland != 0 {
+		d.markDirty(d.hIsland)
+	}
+}
+
+// flushRepaints issues at most one invalidation per dirty window. Unpainted
+// requests carry into the next tick, so no frames are dropped or duplicated.
+func (d *DesktopWindow) flushRepaints() {
+	for h := range d.dirty {
+		if IsWindowVisible(h) {
+			InvalidateRect(h, false)
+		}
+	}
+}
+
+func showWindow(h HWND, visible bool) {
+	cmd := int32(SW_HIDE)
+	if visible {
+		cmd = SW_SHOWNORMAL
+	}
+	ShowWindow(h, cmd)
 }
 
 func (d *DesktopWindow) confirmedFullscreen() bool {
@@ -511,7 +578,7 @@ func (d *DesktopWindow) confirmedFullscreen() bool {
 }
 
 func (d *DesktopWindow) refreshDockMotion() {
-	if d.hDock == 0 {
+	if d.hDock == 0 || !d.dockVisible {
 		return
 	}
 	p := GetCursorPos()
@@ -519,7 +586,12 @@ func (d *DesktopWindow) refreshDockMotion() {
 		return
 	}
 	d.lastCursor = p
-	InvalidateRect(d.hDock, false)
+	// Magnification only changes when the pointer is over the dock. Repainting
+	// for global mouse movement caused steady flicker and needless CPU load.
+	if IsCursorOver(d.hDock) {
+		d.markDirty(d.hDock)
+		d.flushRepaints()
+	}
 }
 
 func (d *DesktopWindow) paint(hwnd HWND) {

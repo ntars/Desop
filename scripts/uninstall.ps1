@@ -9,6 +9,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $runKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
+if (-not (Test-Path $runKey)) { New-Item -Path $runKey -Force | Out-Null }
 
 Remove-ItemProperty -Path $runKey -Name 'Desop' -ErrorAction SilentlyContinue
 $procs = Get-Process -Name desop -ErrorAction SilentlyContinue

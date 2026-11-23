@@ -315,14 +315,15 @@ Desop/
 
 ## 十二、性能表现
 
-**自动化结果与 Windows 实机数据分开记录。** 逻辑测试、格式检查与交叉编译见 `./scripts/check.sh`；以下性能目标仍需在 Windows 实机按 `docs/ACCEPTANCE.md` 测量：
+**自动化结果与 Windows 实机数据分开记录。** 逻辑测试、格式检查与交叉编译见 `./scripts/check.sh`；Windows 11 虚拟机已完成 `scripts/acceptance.ps1` 8/8 PASS、`desop.exe stop`、非法事件返回 400 与便携安装/卸载还原验证，其余目标按 `docs/ACCEPTANCE.md` 在目标实机复测：
 
 | 指标 | 目标 | 状态 |
 |---|---|---|
-| 空闲 CPU | < 1%（四组件全开） | 待 Windows 实机 |
-| 空闲内存 | < 150 MB | 待 Windows 实机 |
-| Dock 放大帧率 | ≥ 55 fps（1080p，20 图标） | 待 Windows 实机 |
-| 冷启动 | ≤ 2 s | 待 Windows 实机 |
+| 空闲 CPU | < 1%（四组件全开，2 分钟观察） | Windows 11 虚拟机实测通过；实体机仍需复测 |
+| 空闲重绘帧数 | 稳定空闲区间 0 帧（无闪烁） | Windows 11 虚拟机实测通过 |
+| 空闲内存 | < 150 MB | Windows 11 虚拟机实测约 32 MB |
+| Dock 放大帧率 | ≥ 55 fps（1080p，20 图标） | 待 Windows 实机录屏佐证 |
+| 冷启动 | ≤ 2 s | 待 Windows 实机复核 |
 
 未达标不发布稳定版；不会用“先发出去再优化”代替验收。
 

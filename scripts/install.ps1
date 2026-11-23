@@ -8,6 +8,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $runKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
+if (-not (Test-Path $runKey)) { New-Item -Path $runKey -Force | Out-Null }
 
 function Get-DesopExe {
   $local = Join-Path $PSScriptRoot 'desop.exe'
@@ -36,8 +37,11 @@ switch ($Action) {
     Write-Host 'Desop removed. HKCU Run entry cleared; no system files were touched.'
   }
   'autostart-on' {
-    $exe = Get-DesopExe
-    New-ItemProperty -Path $runKey -Name 'Desop' -Value "`"$exe`"" -PropertyType String -Force | Out-Null
+    # Prefer the installed copy so the entry remains valid if the source
+    # bundle is moved or deleted after installation.
+    $installed = Join-Path $InstallDir 'desop.exe'
+    if (-not (Test-Path $installed)) { throw "Not installed: $InstallDir" }
+    New-ItemProperty -Path $runKey -Name 'Desop' -Value "`"$installed`"" -PropertyType String -Force | Out-Null
     Write-Host 'Desop autostart enabled (HKCU only).'
   }
   'autostart-off' {

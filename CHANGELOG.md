@@ -22,10 +22,14 @@
 - Windows acceptance helper can generate a first-run config on a clean machine with `-GenerateConfig`.
 - Diagnostic commands now create the default config on a clean machine; top bar placement, widget indexing, and config restoration after acceptance checks were corrected.
 - Trigger first paint for all enabled components at startup instead of waiting for the first throttled refresh.
+- Lock the Win32 shell and self-test to their creating OS thread so thread-scoped message queues and timers remain reliable.
+- Stop repainting unchanged desktop components: dirty windows are invalidated only when content or geometry changes, visibility toggles only on state change, and dock repaint follows pointer movement over the dock.
+- Make portable install/uninstall create the HKCU Run key when absent and register the installed executable for autostart instead of the source bundle.
+- Added deterministic idle repaint-frame counting to the self-test and acceptance helper so window flicker fails verification even when CPU sampling is noisy.
 
 ### Added
 
-- `desop.exe selftest` measures 10-second idle CPU and working set on Windows and reports PASS/FAIL.
+- `desop.exe selftest` measures a 3-second idle interval, working set and idle paint frames on Windows, then reports CPU/memory/flicker PASS/FAIL.
 - First-run config creation, a real `desop.exe stop` signal, loopback API port fallback, Dock launch bounce, calendar widget and foreground-title global menu.
 - `scripts/acceptance.ps1` to generate Windows CLI/config/loopback-API PASS/FAIL evidence.
 
@@ -47,5 +51,5 @@
 ### Known limitations
 
 - 全局菜单、托盘收纳与电量数值依赖额外 Windows API，本版本按设计降级并不编造状态。
-- GUI、DPI、多显示器与性能预算仍需按 `docs/ACCEPTANCE.md` 在 Windows 实机确认。
+- DPI、多显示器、开机自启持久性与 2 分钟性能预算仍需按 `docs/ACCEPTANCE.md` 在目标 Windows 实机确认。
 
