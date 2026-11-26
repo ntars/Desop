@@ -1,6 +1,6 @@
 # Desop Change Log
 
-## Unreleased — 首个可构建版本 (Python + PySide6)
+## 0.2.0 — 首个 Python 版本
 
 ### Added
 

@@ -23,14 +23,26 @@ class Rect:
     def contains(self, x: float, y: float) -> bool:
         return self.x <= x < self.right and self.y <= y < self.bottom
 
+    def intersects(self, other: "Rect") -> bool:
+        return (self.x < other.right and self.right > other.x and
+                self.y < other.bottom and self.bottom > other.y)
+
 
 @dataclass
 class IslandEvent:
-    kind: str
-    title: str
+    kind: str = ""
+    title: str = ""
     detail: str = ""
     progress: int = 0
     expires_at: float = 0.0
+
+    def validate(self) -> None:
+        if not self.title.strip():
+            raise ValueError("title must not be empty")
+        if self.kind not in {"media", "timer", "download", "custom"}:
+            raise ValueError("unsupported event kind")
+        if not 0 <= self.progress <= 100:
+            raise ValueError("progress must be 0-100")
 
 
 @dataclass

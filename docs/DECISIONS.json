@@ -1,0 +1,102 @@
+{
+  "version": "1.0",
+  "records": [
+    {
+      "id": "d001",
+      "title": "技术栈选择：Python + PySide6",
+      "date": "2026-11-23",
+      "status": "approved",
+      "summary": "选择 Python + PySide6 作为主要实现语言，替代原 Go 方案",
+      "details": [
+        "Python 生态更易维护和扩展",
+        "PySide6 提供成熟的 Qt 绑定，窗口渲染能力强",
+        "降低项目门槛，吸引更多贡献者"
+      ],
+      "alternatives": [
+        "保持 Go 实现",
+        "使用 Electron (体积过大)",
+        "使用 C# WPF (仅限 Windows)"
+      ],
+      "rationale": [
+        "Python 跨平台构建更容易",
+        "PySide6 对 Windows 原生窗口支持好",
+        "团队熟悉 Python 开发"
+      ],
+      "constraints": [
+        "必须使用公开 Win32 API",
+        "不引入第三方运行时依赖"
+      ]
+    },
+    {
+      "id": "d002",
+      "title": "版本号管理：单一 VERSION 文件",
+      "date": "2026-11-23",
+      "status": "approved",
+      "summary": "使用 VERSION 文件作为单一版本源，消除硬编码",
+      "details": [
+        "VERSION 文件位于项目根目录",
+        "pyproject.toml 使用 dynamic 版本",
+        "desop/__init__.py 从 VERSION 读取"
+      ],
+      "alternatives": [
+        "在多处硬编码版本号",
+        "使用 git tag 作为版本"
+      ],
+      "rationale": [
+        "避免多处硬编码导致的版本不一致",
+        "简化发布流程"
+      ],
+      "constraints": [
+        "VERSION 格式: <major>.<minor>.<patch>"
+      ]
+    },
+    {
+      "id": "d003",
+      "title": "配置持久化：JSON 格式",
+      "date": "2026-11-23",
+      "status": "approved",
+      "summary": "使用 JSON 作为配置文件格式，支持用户编辑",
+      "details": [
+        "位置: %APPDATA%\\Desop\\config.json (Windows)",
+        "支持的组件: dock, topbar, widgets, island",
+        "验证机制防止配置损坏导致崩溃"
+      ],
+      "alternatives": [
+        "二进制格式",
+        "注册表存储"
+      ],
+      "rationale": [
+        "JSON 可读性好，用户可编辑",
+        "跨平台兼容性好"
+      ],
+      "constraints": [
+        "向后兼容配置迁移",
+        "损坏配置自动恢复默认值"
+      ]
+    },
+    {
+      "id": "d004",
+      "title": "打包方式：PyInstaller onedir",
+      "date": "2026-11-23",
+      "status": "approved",
+      "summary": "使用 PyInstaller 打包为 onedir 格式，便于调试和回滚",
+      "details": [
+        "输出目录: release/desop-<version>/",
+        "包含 BUILD_INFO.txt 记录构建信息",
+        "SHA256SUMS 校验文件完整性"
+      ],
+      "alternatives": [
+        "PyInstaller onefile (单文件)",
+        "MSI 安装包"
+      ],
+      "rationale": [
+        "onedir 便于调试和排查问题",
+        "支持版本回滚"
+      ],
+      "constraints": [
+        "制品可复现 (相同 commit 生成相同 SHA256)",
+        "不包含调试符号"
+      ]
+    }
+  ]
+}

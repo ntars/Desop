@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "desop-macos"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Desop - macOS-style desktop layer for Windows written in Python"
 readme = "README.md"
 license = {text = "Apache-2.0"}
@@ -24,7 +24,26 @@ desop = "desop.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["desop*"]
+include = ["desop*", "tests*"]
+
+[tool.pytest.ini_options]
+addopts = "-v --cov=desop --cov-report=term-missing --cov-report=html"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["desop"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
+omit = [
+    "*/tests/*",
+    "*/site-packages/*",
+]
 
 [tool.pyinstaller]
 hook-dirs = ["hooks"]

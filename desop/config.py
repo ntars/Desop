@@ -16,6 +16,9 @@ class GeneralConfig:
     language: str = "zh-CN"
     reduced_motion: bool = False
 
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
 
 @dataclass
 class DockConfig:
@@ -35,6 +38,9 @@ class DockConfig:
         ]
     )
 
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
 
 @dataclass
 class TopBarConfig:
@@ -44,6 +50,9 @@ class TopBarConfig:
     show_network: bool = True
     show_volume: bool = True
     show_frontmost_app: bool = True
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass
@@ -56,6 +65,9 @@ class WidgetConfig:
     height: float = 180.0
     enabled: bool = True
     options: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass
@@ -72,6 +84,9 @@ class WidgetsConfig:
         ]
     )
 
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
 
 @dataclass
 class IslandConfig:
@@ -80,6 +95,9 @@ class IslandConfig:
     local_api: bool = True
     port: int = 17890
     event_ttl_seconds: int = 30
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass
@@ -91,6 +109,9 @@ class WallpaperConfig:
     loop: bool = True
     playback_rate: float = 1.0
 
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
 
 @dataclass
 class AppearanceConfig:
@@ -100,6 +121,9 @@ class AppearanceConfig:
     corner_radius: float = 24.0
     shadow: bool = True
     font_scale: float = 1.0
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass
