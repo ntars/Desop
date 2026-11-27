@@ -18,7 +18,9 @@
 
 ## 一、项目名称与定位
 
-> **仓库描述 / Description**：`Desop —— Windows 端桌面美化套装：仿 macOS 桌面样式，提供 dock 栏、顶部栏、桌面小组件与灵动岛 | A Windows desktop beautification suite: macOS-style dock, menu bar, widgets and dynamic island. Built with Python.`
+> **仓库描述 / Description**：`Desop：Windows 端仿 macOS 桌面美化套装，dock、顶部栏、小组件与灵动岛，纯 Python 用户态实现 | A Windows desktop beautification suite with a macOS-style dock, menu bar, widgets and dynamic island, in Python.`
+
+**话题标签**（20 个，仅英文）：`windows`, `desktop-customization`, `dock`, `menubar`, `desktop-widgets`, `dynamic-island`, `macos-style`, `python`, `pyside6`, `user-mode`, `theming`, `wallpaper`, `taskbar`, `ui`, `desktop-environment`, `windows-10`, `windows-11`, `beautification`, `desktop-app`, `open-source`
 
 **名称**：Desop。取 Desktop 的 Des 与 op（operation / 操作层）——桌面操作层。
 
